@@ -1,0 +1,38 @@
+#management:
+#    security:
+#        enabled: false
+#security:
+#    basic:
+#        enabled: false
+
+spring:
+    datasource:
+        driver-class-name: com.mysql.jdbc.Driver
+        password: root
+        url: jdbc:mysql://localhost:3306/library
+        username: root
+    jpa:
+        database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+        hibernate:
+            ddl-auto: create-drop
+            naming:
+                implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyHbmImpl
+                physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.MySQL5Dialect
+        show-sql: true
+
+logging:
+    file: c:\temp\app.log
+    pattern:
+      file: "%d{HH:mm:ss} %-5p [%c] - %m%n"
+
+    level:
+        ROOT: error
+        org.springframework: warn
+        javax.faces: warn
+        org.omnifaces: warn
+        org.springframework.security: warn
+        org.hibernate: warn
+        org.hibernate.type.descriptor.sql: warn
