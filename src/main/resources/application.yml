@@ -13,14 +13,11 @@ spring:
         username: root
     jpa:
         database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-        hibernate:
-            ddl-auto: create-drop
-            naming:
-                implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyHbmImpl
-                physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
         properties:
             hibernate:
+                current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
                 dialect: org.hibernate.dialect.MySQL5Dialect
+                format_sql: true
         show-sql: true
 
 logging:
