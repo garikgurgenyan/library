@@ -1,9 +1,9 @@
-#management:
-#    security:
-#        enabled: false
-#security:
-#    basic:
-#        enabled: false
+management:
+    security:
+        enabled: false
+security:
+    basic:
+        enabled: false
 
 spring:
     datasource:
@@ -31,5 +31,5 @@ logging:
         javax.faces: warn
         org.omnifaces: warn
         org.springframework.security: warn
-        org.hibernate: warn
-        org.hibernate.type.descriptor.sql: warn
+        org.hibernate: trace
+        org.hibernate.type.descriptor.sql: trace
