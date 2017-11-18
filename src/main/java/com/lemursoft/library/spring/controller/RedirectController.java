@@ -1,5 +1,7 @@
 package com.lemursoft.library.spring.controller;
 
+import com.lemursoft.library.dao.impl.AuthorService;
+import com.lemursoft.library.dao.impl.BookService;
 import com.lemursoft.library.domain.Author;
 import com.lemursoft.library.domain.Book;
 import com.lemursoft.library.spring.repository.AuthorRepository;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -22,16 +25,22 @@ import java.util.List;
 public class RedirectController {
 
     @Autowired
-    private AuthorRepository authorRepository;
+    private AuthorService authorService;
 
     @Autowired
-    private BookRepository bookRepository;
+    private BookService bookService;
+
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     public String baseUrlRedirect(HttpServletRequest request, HttpServletResponse response) {
 
-        Page<Book> bookList = bookRepository.findByGenre(15, new PageRequest(0, 10, new Sort(Sort.Direction.ASC, "name")));
+        Page<Author> authors = authorService.getAll(0,10,"fio", Sort.Direction.DESC);
 
+        Author author = new Author();
+        author.setFio("test author");
+        author.setBirthday(new Date(1454284800000L));
+
+        Author newAuthor = authorService.save(author);
         return "ok";
     }
 }

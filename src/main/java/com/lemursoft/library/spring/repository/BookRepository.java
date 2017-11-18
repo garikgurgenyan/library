@@ -13,7 +13,7 @@ import java.util.List;
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
-    List<Book> findByNameContainingIgnoreCaseOrAuthorFioContainingIgnoreCaseOrderByName(String name, String fio);
+    Page<Book> findByNameContainingIgnoreCaseOrAuthorFioContainingIgnoreCaseOrderByName(String name, String fio, Pageable pageable);
 
     @Query("select new com.lemursoft.library.domain.Book(b.id, b.name, b.pageCount, b.isbn, b.genre, b.author, b.publisher, b.publishYear, b.image, b.descr, b.viewCount, b.totalRating, b.totalVoteCount, b.avgRating) from Book b")
     Page<Book> findAllWithoutContent(Pageable pageable);
@@ -31,4 +31,14 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     @Query("select b.content from Book b where b.id=:id")
     byte[] getContent(@Param("id") long id);
+
+    @Modifying
+    @Query("update Book b set b.viewCount=:viewCount where b.id =:id")
+    void updateViewCount(@Param("viewCount") long viewCount, @Param("id") long id);
+
+    @Modifying
+    @Query("update Book b set b.totalVoteCount=:totalVoteCount, b.totalRating=:totalRating, b.avgRating=:avgRating where b.id =:id")
+    void updateRating(@Param("totalRating") long totalRating, @Param("totalVoteCount") long totalVoteCount,  @Param("avgRating") int avgRating, @Param("id") long id);
+
+
 }
