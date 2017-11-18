@@ -1,5 +1,8 @@
 package com.lemursoft.library.dao;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+
 import java.util.List;
 
 public interface GeneralDAO<T> {
@@ -12,5 +15,11 @@ public interface GeneralDAO<T> {
     T save(T object);
 
     void delete(T object);
+
+    List<T> getAll(Sort sort);
+
+    Page<T> getAll(int pageNumber, int pageSize, String sortField, Sort.Direction sortDirection);
+
+    Page<T> search(int pageNumber, int pageSize, String sortField, Sort.Direction sortDireaction, String... searchString);
 
 }
