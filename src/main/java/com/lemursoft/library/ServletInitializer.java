@@ -6,7 +6,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 @SpringBootApplication
-@EnableAspectJAutoProxy
 @ComponentScan(basePackages = {"com.lemursoft.library"})
 public class ServletInitializer extends SpringBootServletInitializer {
 
