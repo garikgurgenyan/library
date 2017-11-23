@@ -7,7 +7,7 @@
 
     <application>
 
-        <!-- упрощает работу с ресурсами для веб страницы (js, css и пр.) -->
+
         <resource-handler>org.omnifaces.resourcehandler.UnmappedResourceHandler</resource-handler>
 
         <locale-config>
@@ -15,12 +15,12 @@
         </locale-config>
 
         <resource-bundle>
-            <base-name>library</base-name> <!-- название файла с ресурсами (без постфикса) - должно совпадать -->
+            <base-name>library</base-name>
             <var>msg</var>
         </resource-bundle>
 
 
-        <!-- подружить JSF и Spring контейнеры, чтобы видели бины друг друга -->
+
         <el-resolver>
             org.springframework.web.jsf.el.SpringBeanFacesELResolver
         </el-resolver>
