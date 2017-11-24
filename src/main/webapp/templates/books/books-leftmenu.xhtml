@@ -17,10 +17,11 @@
             </p:commandLink>
 
             <!--меню с навзваниями жанров (для поиска книг по жанрам) -->
+            <p:repeat value="#{genreController.all}" var="genre" >
             <p:commandLink class="list-group-item" >
-                <p:outputLabel value="test" styleClass="genre-name"/>
+                <p:outputLabel value="#{genre.name}" styleClass="genre-name"/>
             </p:commandLink>
-
+            </p:repeat>
 
         </div>
     </b:row>
