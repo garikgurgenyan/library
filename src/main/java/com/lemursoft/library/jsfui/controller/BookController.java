@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.ManagedBean;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.SessionScoped;
+import java.util.List;
 
 
 @ManagedBean
@@ -27,6 +28,7 @@ public class BookController extends AbstractController<Book>{
     public static final int DEFAULT_PAGE_SIZE = 20;
 
     private int rowsCount = DEFAULT_PAGE_SIZE;
+    public static final int TOP_BOOKS_LIMIT = 5;
 
     private SearchType searchType;
 
@@ -36,6 +38,7 @@ public class BookController extends AbstractController<Book>{
     private LazyDataTable<Book> lazyModel;
 
     private Page<Book> bookPages;
+    private List<Book> topBooks;
 
     @PostConstruct
     public void init() {
@@ -66,5 +69,10 @@ public class BookController extends AbstractController<Book>{
         }
 
         return bookPages;
+    }
+
+    public List<Book> getTopBooks() {
+        topBooks = bookDao.findTopBooks(TOP_BOOKS_LIMIT);
+        return topBooks;
     }
 }
