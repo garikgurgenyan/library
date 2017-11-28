@@ -1,6 +1,6 @@
 package com.lemursoft.library.dao.impl;
 
-import com.lemursoft.library.dao.AuthorDso;
+import com.lemursoft.library.dao.AuthorDao;
 import com.lemursoft.library.domain.Author;
 import com.lemursoft.library.spring.repository.AuthorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import java.util.List;
 
 @Service
 @Transactional
-public class AuthorService implements AuthorDso {
+public class AuthorService implements AuthorDao {
 
     @Autowired
     private AuthorRepository authorRepository;
