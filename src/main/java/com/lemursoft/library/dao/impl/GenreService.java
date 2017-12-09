@@ -31,7 +31,7 @@ public class GenreService implements GenreDao{
 
     @Override
     public Genre get(long id) {
-        return genreRepository.getOne(id);
+        return genreRepository.findOne(id);
     }
 
     @Override
