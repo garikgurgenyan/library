@@ -81,6 +81,7 @@ public class BookController extends AbstractController<Book>{
                     bookPages = bookDao.findByGenre(pageNumber, pageSize, sortField, sortDirection, selectedGenreId);
                     break;
                 case SEARCH_TEXT:
+                    bookPages = bookDao.search(pageNumber, pageSize, sortField, sortDirection, searchText);
                     break;
                 case ALL:
                     bookPages = bookDao.getAll(pageNumber, pageSize, sortField, sortDirection);
@@ -120,5 +121,9 @@ public class BookController extends AbstractController<Book>{
         }
 
         return message;
+    }
+
+    public void searchAction() {
+        searchType = SearchType.SEARCH_TEXT;
     }
 }
