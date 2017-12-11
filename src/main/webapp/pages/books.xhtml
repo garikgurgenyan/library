@@ -41,30 +41,39 @@
 
                     </f:facet>
 
+                    <!--карточка с данными книги-->
                     <p:outputPanel styleClass="card">
 
+                        <!--обложка книги-->
                         <div class="book-icon">
-                            <o:graphicImage cache="false" value="#{book.image}" dataURI="true"/>
+                            <h:outputLink value="#{request.contextPath}/PdfContent" target="_blank"
+                                          styleClass="read-link">
+                                <f:param name="id" value="#{book.id}"/>
+                                <f:param name="viewCount" value="#{book.viewCount}"/>
+                                <o:graphicImage cache="false" value="#{book.image}" dataURI="true" />
+                            </h:outputLink>
                         </div>
 
+                        <!--описание книги-->
                         <div class="book-info">
                             <div class="author">
                                 <h:outputText value="#{book.author.fio}" styleClass="author"/>
                             </div>
                         </div>
 
-
+                        <!-- нижняя часть под картинкой -->
                         <div class="add-info">
                             <div style="width: 10%; float: left">
                                 <o:graphicImage name="images/see.png" styleClass="see-count"/>
                             </div>
-
+                            <!-- кол-во просмотров -->
                             <div style="width: 20%; float: left; margin-left: 10px; font-size: 14px;">
                                 <h:outputText value="#{book.viewCount}" styleClass="view-count" id="viewCountLable"/>
                             </div>
-
+                            <!--голосование-->
                             <div style="width: 60%; float: right;">
-                                <p:rating id="rating" value="#{book.avgRating}" styleClass="rating" cancel="false" stars="5">
+                                <p:rating id="rating" value="#{book.avgRating}" styleClass="rating" cancel="false"
+                                          stars="5">
                                 </p:rating>
                             </div>
                         </div>
@@ -83,7 +92,6 @@
                     </p:outputPanel>
                 </p:dataGrid>
             </h:form>
-
 
 
         </ui:define>

@@ -33,6 +33,9 @@ public class BookController extends AbstractController<Book>{
     private int rowsCount = DEFAULT_PAGE_SIZE;
     public static final int TOP_BOOKS_LIMIT = 5;
 
+    private byte[] uploadedImage; // сюда будет сохраняться загруженная пользователем новая обложка (при редактировании или при добавлении книги)
+    private byte[] uploadedContent; // сюда будет сохраняться загруженный пользователем PDF контент (при редактировании или при добавлении книги)
+
     private SearchType searchType;
 
     private String searchText; // текст поиска
@@ -125,5 +128,26 @@ public class BookController extends AbstractController<Book>{
 
     public void searchAction() {
         searchType = SearchType.SEARCH_TEXT;
+    }
+
+    // получить PDF контент книги для чтения
+    public byte[] getContent(long id) {
+
+        byte[] content;
+
+        if (uploadedContent != null) {
+            content = uploadedContent;
+        } else {
+
+            content = bookDao.getContent(id);
+
+        }
+
+        return content;
+    }
+
+    public void updateViewCount(long viewCount, long id) {
+        bookDao.updateViewCount(viewCount,id);
+
     }
 }
