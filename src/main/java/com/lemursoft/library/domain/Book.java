@@ -9,22 +9,24 @@ import org.hibernate.annotations.SelectBeforeUpdate;
 
 import javax.persistence.*;
 
-@Entity
+// JPA
+@Entity // все поля класса будут автоматически связаны со столбцами таблицы
 @Table(catalog = "library")
-@DynamicUpdate
-@DynamicInsert
-@SelectBeforeUpdate
-@Getter @Setter
+
+// Lombok
 @EqualsAndHashCode(of = "id")
+@Getter @Setter // генерация гетеров-сетеров для всех полей класса
+
+// аннотации Hibernate
+@DynamicUpdate // обновляет только те поля, которые изменились
+@DynamicInsert // вставляет только те поля, у которых есть значение
+@SelectBeforeUpdate // проверить объект перед обновлением, нужно ли его обновлять
 public class Book {
+
     public Book() {
     }
 
-    public Book(Long id, byte[] image) {
-        this.id = id;
-        this.image = image;
-    }
-
+    // здесь нет заполнения поля content - чтобы не грузить страницу (контент получаем по требованию)
     public Book(Long id, String name, Integer pageCount, String isbn, Genre genre, Author author, Publisher publisher, Integer publishYear, byte[] image, String descr, long viewCount, long totalRating, long totalVoteCount, int avgRating) {
         this.id = id;
         this.name = name;
@@ -38,19 +40,24 @@ public class Book {
         this.descr = descr;
         this.viewCount = viewCount;
         this.totalRating = totalRating;
-        this.totalVoteCount = totalVoteCount;
+        this.totalVoteCount=totalVoteCount;
         this.avgRating = avgRating;
+    }
+
+    public Book(Long id, byte[] image) {
+        this.id = id;
+        this.image = image;
     }
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement
     private Long id;
 
     private String name;
 
     @Lob
-    @Column(updatable = false)
+    @Column(updatable = false)// updatable = false: при апдейте это поле не будет добавляться (content будем обновлять отдельным запросом)
     private byte[] content;
 
     @Column(name = "page_count")
@@ -58,8 +65,11 @@ public class Book {
 
     private String isbn;
 
-    @ManyToOne
-    @JoinColumn
+
+
+    @ManyToOne // ссылка foreign key идет из таблицы Book в таблицу Genre
+    // по-умолчанию Hibernate пытается связать по полю genre_id (как в нашей таблице), если имя столбца другое, нужно задавать атрибут name у @JoinColumn
+    @JoinColumn // для получения готового объекта Genre по id
     private Genre genre;
 
     @ManyToOne
@@ -70,8 +80,10 @@ public class Book {
     @JoinColumn
     private Publisher publisher;
 
-    @Column(name = "publish_year")
+
+    @Column(name = "publish_year")// если имя столбца не совпадает с именем переменной
     private Integer publishYear;
+
 
     private byte[] image;
 
@@ -93,4 +105,5 @@ public class Book {
     public String toString() {
         return name;
     }
+
 }

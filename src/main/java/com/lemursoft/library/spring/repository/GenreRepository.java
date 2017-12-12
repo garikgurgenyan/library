@@ -10,8 +10,10 @@ import java.util.List;
 
 @Repository
 public interface GenreRepository extends JpaRepository<Genre, Long> {
+
     List<Genre> findByNameContainingIgnoreCaseOrderByName(String name);
 
-
     Page<Genre> findByNameContainingIgnoreCaseOrderByName(String name, Pageable pageable);
+
+
 }

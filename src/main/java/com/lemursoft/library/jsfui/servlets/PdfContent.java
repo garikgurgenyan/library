@@ -12,8 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 
-@WebServlet(name = "PdfContent", urlPatterns = {"/PdfContent"})
+@WebServlet(name = "PdfContent",
+        urlPatterns = {"/PdfContent"})
 public class PdfContent extends HttpServlet {
+
     private ApplicationContext context;
 
     @Override
@@ -32,36 +34,36 @@ public class PdfContent extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException      if an I/O error occurs
      */
-
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         OutputStream out = response.getOutputStream();
 
         try {
+
             // считываем параметры
             long id = Long.valueOf(request.getParameter("id"));
             long viewCount = Long.valueOf(request.getParameter("viewCount"));
 
             // получаем Spring бин
-            BookController bookController = (BookController) context.getBean("bookController");
+            BookController bookController =  ((BookController)context.getBean("bookController"));
 
             // получить контент по id
             byte[] content = bookController.getContent(id);
 
-            if (content == null) {
+            if (content==null){
                 response.sendRedirect(request.getContextPath()+"/error/error-pdf.html");
             }else {
                 response.setContentType("application/pdf");
 
                 // увеличить кол-во просмотров книги на 1
-                bookController.updateViewCount(viewCount,id);
+                bookController.updateViewCount(viewCount, id);
 
                 response.setContentLength(content.length);
                 out.write(content);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-        }finally {
+        } finally {
             out.close();
         }
     }

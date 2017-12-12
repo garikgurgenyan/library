@@ -8,12 +8,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
-
-@Service
+@Service // сервисный Spring бин
 @Transactional
+// методы помечаются как транзакционные (для запросов применяются настройки транзакций по-умолчанию, уровень изоляции и пр.)
 public class AuthorService implements AuthorDao {
 
     @Autowired
@@ -24,15 +24,27 @@ public class AuthorService implements AuthorDao {
         return authorRepository.findAll();
     }
 
+    public List<Author> getAll(Sort sort) {
+        return authorRepository.findAll(sort);
+    }
+
+
+
+    @Override
+    public Page<Author> getAll(int pageNumber, int pageSize, String sortField, Sort.Direction sortDirection) {
+        return authorRepository.findAll(new PageRequest(pageNumber, pageSize, new Sort(sortDirection, sortField)));
+    }
+
     @Override
     public List<Author> search(String... searchString) {
         return authorRepository.findByFioContainingIgnoreCaseOrderByFio(searchString[0]);
     }
 
     @Override
-    public Author get(long id) {
-        return authorRepository.getOne(id);
+    public Page<Author> search(int pageNumber, int pageSize, String sortField, Sort.Direction sortDirection, String... searchString) {
+        return authorRepository.findByFioContainingIgnoreCaseOrderByFio(searchString[0], new PageRequest(pageNumber, pageSize, new Sort(sortDirection, sortField)));
     }
+
 
     @Override
     public Author save(Author author) {
@@ -45,17 +57,11 @@ public class AuthorService implements AuthorDao {
     }
 
     @Override
-    public List<Author> getAll(Sort sort) {
-        return authorRepository.findAll(sort);
+    public Author get(long id) {
+        return authorRepository.findOne(id);
     }
 
-    @Override
-    public Page<Author> getAll(int pageNumber, int pageSize, String sortField, Sort.Direction sortDirection) {
-        return authorRepository.findAll(new PageRequest(pageNumber,pageSize,new Sort(sortDirection, sortField)));
-    }
 
-    @Override
-    public Page<Author> search(int pageNumber, int pageSize, String sortField, Sort.Direction sortDireaction, String... searchString) {
-        return authorRepository.findByFioContainingIgnoreCaseOrderByFio(searchString[0], new PageRequest(pageNumber,pageSize, new Sort(sortDireaction,sortField)));
-    }
+
+
 }

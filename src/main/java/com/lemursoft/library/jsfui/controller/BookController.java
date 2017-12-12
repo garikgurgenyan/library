@@ -1,20 +1,23 @@
 package com.lemursoft.library.jsfui.controller;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.java.Log;
+import org.primefaces.context.RequestContext;
+import org.primefaces.event.CloseEvent;
+import org.primefaces.event.FileUploadEvent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Component;
 import com.lemursoft.library.dao.BookDao;
 import com.lemursoft.library.dao.GenreDao;
 import com.lemursoft.library.domain.Book;
 import com.lemursoft.library.jsfui.enums.SearchType;
 import com.lemursoft.library.jsfui.model.LazyDataTable;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.java.Log;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.ManagedBean;
 import javax.annotation.PostConstruct;
+import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import java.util.List;
@@ -24,61 +27,83 @@ import java.util.ResourceBundle;
 @ManagedBean
 @SessionScoped
 @Component
-@Getter @Setter
+@Getter
+@Setter
 @Log
-public class BookController extends AbstractController<Book>{
+public class BookController extends AbstractController<Book> {
 
-    public static final int DEFAULT_PAGE_SIZE = 20;
-
+    public static final int DEFAULT_PAGE_SIZE = 20;// по-умолчанию сколько книг отображать на странице
+    public static final int TOP_BOOKS_LIMIT = 5;// сколько показывать популярных книг
+    // из JSF таблицы обязательно должна быть ссылки на переменные, иначе при использовании постраничности dataGrid работает некорректно (не отрабатывает bean)
+    // также - выбранное пользователем значение (кол-во записей на странице) будет сохраняться
     private int rowsCount = DEFAULT_PAGE_SIZE;
-    public static final int TOP_BOOKS_LIMIT = 5;
 
-    private byte[] uploadedImage; // сюда будет сохраняться загруженная пользователем новая обложка (при редактировании или при добавлении книги)
-    private byte[] uploadedContent; // сюда будет сохраняться загруженный пользователем PDF контент (при редактировании или при добавлении книги)
+    private SearchType searchType; // запоминает последний выбранный вариант поиска
 
-    private SearchType searchType;
-
-    private String searchText; // текст поиска
-
-    private long selectedGenreId; // хранит выбранный жанр (при поиске книг по жанру)
 
     @Autowired
-    private BookDao bookDao;// будет автоматически подставлен BookService, т.к. Spring контейнер по-умолчанию ищет бин-реализацию по типу
+    private BookDao bookDao; // будет автоматически подставлен BookService, т.к. Spring контейнер ищет бин по типу
+
 
     @Autowired
     private GenreDao genreDao;
 
-    private LazyDataTable<Book> lazyModel;
 
-    private Page<Book> bookPages;
-    private List<Book> topBooks;
+    @Autowired
+    private GenreController genreController;
+
+    private Book selectedBook; // ссылка на текущую книгу (которую редактируют, хотят удалять и пр.) - т.е. над какой книгой в данный момент производим действие
+    private LazyDataTable<Book> lazyModel; // класс-утилита, которая помогает выводить данные постранияно (работает в паре с компонентами на странице JSF)
+
+    private byte[] uploadedImage; // сюда будет сохраняться загруженная пользователем новая обложка (при редактировании или при добавлении книги)
+    private byte[] uploadedContent; // сюда будет сохраняться загруженный пользователем PDF контент (при редактировании или при добавлении книги)
+
+    private Page<Book> bookPages;  //хранит список найденных книг
+    private List<Book> topBooks;// хранит полученные ТОП книги (может использоваться наприемр для получения изображений книги)
+
+    private String searchText; // введенный текст для поиска
+    private long selectedGenreId; // выбранынй жано для поиска
+
 
     @PostConstruct
     public void init() {
-        lazyModel = new LazyDataTable<>(this);
+        lazyModel = new LazyDataTable(this);
     }
 
 
-    public void showAll() {
-        searchType = SearchType.ALL;
+
+    public void save() {
+
+        // если было выбрано новое изображение
+        if (uploadedImage != null) {
+            selectedBook.setImage(uploadedImage);
+        }
+
+        // если был выбран новый PDF контент
+        if (uploadedContent != null) {
+            selectedBook.setContent(uploadedContent);
+        }
+
+        bookDao.save(selectedBook);
+        RequestContext.getCurrentInstance().execute("PF('dialogEditBook').hide()");// вызов JS из java кода
+
+
     }
 
-    // поиск по определенному жанру
-    public void showBooksByGenre(long selectedGenreId){
-        searchType = SearchType.SEARCH_GENRE; //
-        this.selectedGenreId = selectedGenreId;
-    }
 
+    // метод автоматически вызывается из LazyDataTable
     @Override
     public Page<Book> search(int pageNumber, int pageSize, String sortField, Sort.Direction sortDirection) {
+
 
         if (sortField == null) {
             sortField = "name";
         }
 
-        if (searchType == null) {
+        if (searchType == null){
             bookPages = bookDao.getAll(pageNumber, pageSize, sortField, sortDirection);
-        } else {
+        }else {
+
             switch (searchType) {
                 case SEARCH_GENRE:
                     bookPages = bookDao.findByGenre(pageNumber, pageSize, sortField, sortDirection, selectedGenreId);
@@ -88,19 +113,43 @@ public class BookController extends AbstractController<Book>{
                     break;
                 case ALL:
                     bookPages = bookDao.getAll(pageNumber, pageSize, sortField, sortDirection);
+                    break;
+
             }
         }
+
 
         return bookPages;
     }
 
-    public List<Book> getTopBooks() {
-        topBooks = bookDao.findTopBooks(TOP_BOOKS_LIMIT);
-        return topBooks;
+    @Override
+    public void addAction() {
+
     }
 
+    // при закрытии диалогового окна - очищать загруженный контент из переменной
+    public void onCloseDialog(CloseEvent event) {
+        uploadedContent = null;
+    }
+
+    @Override
+    public void editAction() {
+        uploadedImage = selectedBook.getImage();
+
+        // выбранный book уже будет записан в переменную selectedBook (как только пользователь кликнет на редактирование)
+        // книга отобразится в диалоговом окне
+        RequestContext.getCurrentInstance().execute("PF('dialogEditBook').show()");
+    }
+
+    @Override
+    public void deleteAction() {
+
+    }
+
+    // сообщение, сколько данных найдено и по какому критеорию
     public String getSearchMessage(){
 
+        // для доступа к файлам локализации
         ResourceBundle bundle = ResourceBundle.getBundle("library", FacesContext.getCurrentInstance().getViewRoot().getLocale());
 
 
@@ -126,9 +175,6 @@ public class BookController extends AbstractController<Book>{
         return message;
     }
 
-    public void searchAction() {
-        searchType = SearchType.SEARCH_TEXT;
-    }
 
     // получить PDF контент книги для чтения
     public byte[] getContent(long id) {
@@ -146,8 +192,49 @@ public class BookController extends AbstractController<Book>{
         return content;
     }
 
-    public void updateViewCount(long viewCount, long id) {
-        bookDao.updateViewCount(viewCount,id);
 
+    // при загрузке обложки - она будет сохраняться в переменную uploadedImage
+    public void uploadImage(FileUploadEvent event) {
+        if (event.getFile() != null) {
+            uploadedImage = event.getFile().getContents();
+        }
     }
+
+    // при загрузке PDF контента - он будет сохраняться в переменную uploadedContent
+    public void uploadContent(FileUploadEvent event) {
+        if (event.getFile() != null) {
+            uploadedContent = event.getFile().getContents();
+        }
+    }
+
+
+    public List<Book> getTopBooks() {
+        topBooks = bookDao.findTopBooks(TOP_BOOKS_LIMIT);
+        return topBooks;
+    }
+
+
+
+    public void showBooksByGenre(long genreId){
+        searchType = SearchType.SEARCH_GENRE;
+        this.selectedGenreId = genreId;
+    }
+
+    public void showAll(){
+        searchType = SearchType.ALL;
+    }
+
+    public void searchAction(){
+        searchType = SearchType.SEARCH_TEXT;
+    }
+
+    public Page<Book> getBookPages(){
+        return bookPages;
+    }
+
+    public void updateViewCount(long viewCount, long id){
+        bookDao.updateViewCount(viewCount+1, id);
+    }
+
+
 }

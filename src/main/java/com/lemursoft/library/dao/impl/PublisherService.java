@@ -8,8 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -19,10 +19,23 @@ public class PublisherService implements PublisherDao {
     @Autowired
     private PublisherRepository publisherRepository;
 
+
     @Override
     public List<Publisher> getAll() {
         return publisherRepository.findAll();
     }
+
+    public List<Publisher> getAll(Sort sort) {
+        return publisherRepository.findAll(sort);
+    }
+
+
+
+    @Override
+    public Page<Publisher> getAll(int pageNumber, int pageSize, String sortField, Sort.Direction sortDirection) {
+        return publisherRepository.findAll(new PageRequest(pageNumber, pageSize, new Sort(sortDirection, sortField)));
+    }
+
 
     @Override
     public List<Publisher> search(String... searchString) {
@@ -30,9 +43,10 @@ public class PublisherService implements PublisherDao {
     }
 
     @Override
-    public Publisher get(long id) {
-        return publisherRepository.getOne(id);
+    public Page<Publisher> search(int pageNumber, int pageSize, String sortField, Sort.Direction sortDirection, String... searchString) {
+        return publisherRepository.findByNameContainingIgnoreCaseOrderByName(searchString[0], new PageRequest(pageNumber, pageSize, new Sort(sortDirection, sortField)));
     }
+
 
     @Override
     public Publisher save(Publisher publisher) {
@@ -40,22 +54,16 @@ public class PublisherService implements PublisherDao {
     }
 
     @Override
-    public void delete(Publisher publisher) {
+    public void delete(Publisher publisher){
         publisherRepository.delete(publisher);
     }
 
     @Override
-    public List<Publisher> getAll(Sort sort) {
-        return publisherRepository.findAll(sort);
+    public Publisher get(long id) {
+        return publisherRepository.findOne(id);
     }
 
-    @Override
-    public Page<Publisher> getAll(int pageNumber, int pageSize, String sortField, Sort.Direction sortDirection) {
-        return publisherRepository.findAll(new PageRequest(pageNumber,pageSize,new Sort(sortDirection,sortField)));
-    }
 
-    @Override
-    public Page<Publisher> search(int pageNumber, int pageSize, String sortField, Sort.Direction sortDireaction, String... searchString) {
-        return publisherRepository.findByNameContainingIgnoreCaseOrderByName(searchString[0], new PageRequest(pageNumber, pageSize, new Sort(sortDireaction, sortField)));
-    }
+
+
 }

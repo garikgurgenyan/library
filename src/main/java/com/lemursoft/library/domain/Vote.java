@@ -10,16 +10,21 @@ import org.hibernate.annotations.SelectBeforeUpdate;
 import javax.persistence.*;
 import java.util.Date;
 
-@Entity
+// JPA
+@Entity // все поля класса будут автоматически связаны со столбцами таблицы
 @Table(catalog = "library")
+
+// Lombok
 @EqualsAndHashCode(of = "id")
-@Getter @Setter
-@DynamicUpdate
-@DynamicInsert
-@SelectBeforeUpdate
+@Getter @Setter // генерация гетеров-сетеров для всех полей класса
+
+// аннотации Hibernate
+@DynamicUpdate // обновляет только те поля, которые изменились
+@DynamicInsert // вставляет только те поля, у которых есть значение
+@SelectBeforeUpdate // проверить объект перед обновлением, нужно ли его обновлять
 public class Vote {
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // autoincrement
     @Id
     private Long id;
 
@@ -29,4 +34,5 @@ public class Vote {
     private Date bookId;
 
     private String username;
+
 }

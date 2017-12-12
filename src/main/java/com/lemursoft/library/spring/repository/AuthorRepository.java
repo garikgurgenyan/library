@@ -8,8 +8,13 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
-public interface AuthorRepository extends JpaRepository<Author, Long> {
+@Repository // создается специальный Spring bean, выполняет запросы в БД
+public interface AuthorRepository extends JpaRepository<Author, Long> {// JpaRepository - содержит CRUD функционал + постраничность
+
+    // на основании имени метода будет построен Hibernate запрос
     List<Author> findByFioContainingIgnoreCaseOrderByFio(String fio);
-    Page<Author> findByFioContainingIgnoreCaseOrderByFio(String fio, Pageable pageable);
+
+    // Page cодержит результаты выполнения запроса и служебные данные для постраничности
+    Page<Author> findByFioContainingIgnoreCaseOrderByFio(String fio, Pageable pageable);// Pageable - параметры для постраничности
+
 }
