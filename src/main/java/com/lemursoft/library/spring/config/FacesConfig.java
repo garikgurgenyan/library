@@ -20,7 +20,7 @@ public class FacesConfig {
             servletContext.setInitParameter("primefaces.CLIENT_SIDE_VALIDATION", "true");
             servletContext.setInitParameter("primefaces.THEME", "bootstrap");
             servletContext.setInitParameter("primefaces.FONT_AWESOME", "true");
-            servletContext.setInitParameter("primefaces.UPLOADER", "commons");
+//            servletContext.setInitParameter("primefaces.UPLOADER", "commons");
         };
     }
 

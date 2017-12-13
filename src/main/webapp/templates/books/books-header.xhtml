@@ -4,11 +4,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:o="http://omnifaces.org/ui"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:p="http://primefaces.org/ui"
->
 
+
+>
 <f:view>
 
 
@@ -23,20 +24,20 @@
 
 
 
-                            <ul class="nav navbar-nav">
+                        <ul class="nav navbar-nav">
 
-                                <ui:fragment ><li><o:graphicImage name="images/books.png" style="height:50px; padding:10px;" dataURI="true"/></li></ui:fragment>
+                            <ui:fragment ><li><o:graphicImage name="images/books.png" style="height:50px; padding:10px;" dataURI="true"/></li></ui:fragment>
 
 
 
-                            </ul>
+                        </ul>
 
 
 
                     </div>
-
                     <div style="width:50%; float: right">
                         <div style="width:50%; float: left; padding-right: 20px; padding-left: 20px; height: 50px;">
+
                             <h:form styleClass="search-form">
 
                                 <p:inputText style="margin-right:10px" placeholder="#{msg.search}"
@@ -49,6 +50,7 @@
 
 
                             </h:form>
+
                         </div>
 
 
@@ -60,6 +62,7 @@
 
 
                     </div>
+
 
                     <ui:include src="../part/locales.xhtml"/>
 
@@ -73,6 +76,20 @@
 
 
     </div>
+
+
+    <p:ajaxStatus id="ajaxStatusPanel">
+        <f:facet name="start">
+            <div id="loading_wrapper">
+                <p>#{msg.loading}...</p>
+            </div>
+        </f:facet>
+
+        <f:facet name="complete">
+            <h:outputText value="" />
+        </f:facet>
+    </p:ajaxStatus>
+
 
 
 </f:view>
