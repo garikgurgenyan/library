@@ -143,7 +143,7 @@ public class BookController extends AbstractController<Book> {
 
     @Override
     public void deleteAction() {
-
+        bookDao.delete(selectedBook);
     }
 
     // сообщение, сколько данных найдено и по какому критеорию
