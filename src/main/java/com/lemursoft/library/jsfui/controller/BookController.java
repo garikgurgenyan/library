@@ -3,9 +3,11 @@ package com.lemursoft.library.jsfui.controller;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
+import org.apache.commons.io.IOUtils;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.CloseEvent;
 import org.primefaces.event.FileUploadEvent;
+import org.primefaces.event.RateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -20,7 +22,10 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 
@@ -53,6 +58,7 @@ public class BookController extends AbstractController<Book> {
     private GenreController genreController;
 
     private Book selectedBook; // ссылка на текущую книгу (которую редактируют, хотят удалять и пр.) - т.е. над какой книгой в данный момент производим действие
+
     private LazyDataTable<Book> lazyModel; // класс-утилита, которая помогает выводить данные постранияно (работает в паре с компонентами на странице JSF)
 
     private byte[] uploadedImage; // сюда будет сохраняться загруженная пользователем новая обложка (при редактировании или при добавлении книги)
@@ -85,10 +91,14 @@ public class BookController extends AbstractController<Book> {
         }
 
         bookDao.save(selectedBook);
-        RequestContext.getCurrentInstance().execute("PF('dialogEditBook').hide()");// вызов JS из java кода
-
+        RequestContext.getCurrentInstance().execute("PF('dialogEditBook').hide()");
 
     }
+
+
+
+
+
 
 
     // метод автоматически вызывается из LazyDataTable
@@ -124,6 +134,23 @@ public class BookController extends AbstractController<Book> {
 
     @Override
     public void addAction() {
+        selectedBook = new Book();
+        uploadedImage = loadDefaultIcon();
+        uploadedContent = null;
+
+        RequestContext.getCurrentInstance().execute("PF('dialogEditBook').show()");
+    }
+
+    // загрузить картинку по-умолчанию для обложки
+    private byte[] loadDefaultIcon(){
+        InputStream stream = FacesContext.getCurrentInstance().getExternalContext().getResourceAsStream("/resources/images/no-cover.jpg");
+        try {
+            return IOUtils.toByteArray(stream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
 
     }
 
@@ -145,6 +172,7 @@ public class BookController extends AbstractController<Book> {
     public void deleteAction() {
         bookDao.delete(selectedBook);
     }
+
 
     // сообщение, сколько данных найдено и по какому критеорию
     public String getSearchMessage(){
@@ -192,7 +220,6 @@ public class BookController extends AbstractController<Book> {
         return content;
     }
 
-
     // при загрузке обложки - она будет сохраняться в переменную uploadedImage
     public void uploadImage(FileUploadEvent event) {
         if (event.getFile() != null) {
@@ -215,6 +242,7 @@ public class BookController extends AbstractController<Book> {
 
 
 
+
     public void showBooksByGenre(long genreId){
         searchType = SearchType.SEARCH_GENRE;
         this.selectedGenreId = genreId;
@@ -234,6 +262,42 @@ public class BookController extends AbstractController<Book> {
 
     public void updateViewCount(long viewCount, long id){
         bookDao.updateViewCount(viewCount+1, id);
+    }
+
+
+    // вызывается при голосовании за книгу
+    public void onrate(RateEvent rateEvent) {
+        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+        int bookIndex = Integer.parseInt(params.get("bookIndex"));// параметр индекса книги, который передается со страницы
+
+        Book book = bookPages.getContent().get(bookIndex);// по индексу получаем книгу, для которой проголосовали
+
+        // какой рейтинг поставил пользователь
+        long currentRating = Long.valueOf(rateEvent.getRating().toString()).longValue();
+
+        // новый рейтинг (суммарный)
+        long newRating = book.getTotalRating() + currentRating;
+
+        // сколько проголосовало
+        long newVoteCount = book.getTotalVoteCount()+1;
+
+        // среднее значение, которое показывается на странице
+        int newAvgRating = calcAverageRating(newRating, newVoteCount);
+
+        bookDao.updateRating(newRating, newVoteCount, newAvgRating, book.getId());
+
+    }
+
+
+    public int calcAverageRating(long totalRating, long totalVoteCount) {
+        if (totalRating == 0 || totalVoteCount == 0) {
+            return 0;
+        }
+
+        int avgRating = Long.valueOf(totalRating / totalVoteCount).intValue();
+
+
+        return avgRating;
     }
 
 

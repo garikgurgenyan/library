@@ -23,6 +23,7 @@
             <ui:include src="/templates/dialogs/edit-dialog.xhtml"/>
             <ui:include src="/templates/dialogs/confirm-dialog.xhtml"/>
 
+
             <!-- форма должны быть вне таблицы с данными, чтобы отрабатывать все кнопки и ссылки внутри формы -->
             <h:form id="booksForm">
 
@@ -100,16 +101,18 @@
 
 
                         <!--инструменты администратора (редактирование, удаление)-->
-                        <p:outputPanel layout="block" styleClass="admin-region">
+                        <p:outputPanel layout="block" styleClass="admin-region"
+                        >
 
 
                             <p:commandLink title="#{msg.delete}"
-                                            action="#{bookController.deleteAction()}" update=":booksForm:booksList">
+                                           action="#{bookController.deleteAction()}" update=":booksForm:booksList">
                                 <p:confirm header="#{msg.confirm}" message="#{msg.prompt_delete}"
                                            icon="ui-icon-alert"/>
 
                                 <f:setPropertyActionListener value="#{book}"
                                                              target="#{bookController.selectedBook}"/>
+
                                 <o:graphicImage name="images/delete.png" styleClass="delete-icon" dataURI="true"/>
 
                             </p:commandLink>
