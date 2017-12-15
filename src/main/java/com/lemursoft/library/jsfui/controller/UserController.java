@@ -12,6 +12,7 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import java.util.ResourceBundle;
 
+
 @ManagedBean
 @ViewScoped
 @Component

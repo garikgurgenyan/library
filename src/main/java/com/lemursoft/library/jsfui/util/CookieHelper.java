@@ -1,5 +1,6 @@
 package com.lemursoft.library.jsfui.util;
 
+
 import javax.faces.context.FacesContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -61,4 +62,3 @@ public class CookieHelper {
         return null;
     }
 }
-

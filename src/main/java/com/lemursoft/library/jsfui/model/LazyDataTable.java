@@ -31,7 +31,7 @@ public class LazyDataTable<T> extends LazyDataModel<T> {
 
         Sort.Direction sortDirection = Sort.Direction.ASC;// по-умолчанию - сортировка по возрастанию
 
-        if (sortOrder != null) {
+        if (sortOrder!=null) {
             // все текущие настройки DataTable (сортировка, поле сортировки) будут передаваться в SQL запрос
             switch (sortOrder) {
                 case DESCENDING:
@@ -46,4 +46,8 @@ public class LazyDataTable<T> extends LazyDataModel<T> {
 
         return searchResult.getContent();
     }
+
+
+
+
 }

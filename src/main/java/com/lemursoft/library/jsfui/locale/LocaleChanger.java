@@ -11,12 +11,12 @@ import java.util.Locale;
 @SessionScoped
 public class LocaleChanger implements Serializable {
 
-
-
+    // хранится текущая выбранная пользователем локаль
     private Locale currentLocale = new Locale("ru");
 
     public LocaleChanger() {
 
+        // есть ли сохраненная локаль
         if (CookieHelper.getCookie(CookieHelper.COOKIE_LANG)==null){
             return;
         }
@@ -29,6 +29,8 @@ public class LocaleChanger implements Serializable {
 
     public void changeLocale(String localeCode) {
         currentLocale = new Locale(localeCode);
+
+        // сохранить в куки браузера выбранный язык
         CookieHelper.setCookie(CookieHelper.COOKIE_LANG, currentLocale.getLanguage(), 3600);
 
     }
