@@ -3,6 +3,8 @@ package com.lemursoft.library.jsfui.controller;
 import com.lemursoft.library.dao.AuthorDao;
 import com.lemursoft.library.domain.Author;
 import com.lemursoft.library.jsfui.model.LazyDataTable;
+
+import com.google.common.base.Strings;
 import lombok.Getter;
 import lombok.Setter;
 import org.primefaces.context.RequestContext;
@@ -11,11 +13,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
+
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import java.util.List;
-
 
 @ManagedBean
 @SessionScoped
@@ -33,13 +35,14 @@ public class AuthorController extends AbstractController<Author> {
     @Autowired
     private AuthorDao authorDao;
 
+    @Autowired
+    private SprController sprController;
 
+    private Author selectedAuthor; // над каким автором в данный момент производим действие (удаление, редактирование)
 
-    private Author selectedAuthor;
+    private LazyDataTable<Author> lazyModel; // справочные значения также выводятся постранично, как и книги (создается новый экземпляр lazyModel)
 
-    private LazyDataTable<Author> lazyModel;
-
-    private Page<Author> authorPages;
+    private Page<Author> authorPages; // найденные авторы
 
 
     @PostConstruct
@@ -54,8 +57,21 @@ public class AuthorController extends AbstractController<Author> {
         RequestContext.getCurrentInstance().execute("PF('dialogAuthor').hide()");
     }
 
+
+    // автоматически вызывается из LazyDataTable
     @Override
     public Page<Author> search(int pageNumber, int pageSize, String sortField, Sort.Direction sortDirection) {
+
+        if (sortField == null) {
+            sortField = "fio";
+        }
+
+        // для удобной проверки строк - используем библиотеку Google Guava и метод isNullOrEmpty
+        if (Strings.isNullOrEmpty(sprController.getSearchText())) {
+            authorPages = authorDao.getAll(pageNumber, pageSize, sortField, sortDirection);
+        } else {
+            authorPages = authorDao.search(pageNumber, pageSize, sortField, sortDirection, sprController.getSearchText());
+        }
 
         return authorPages;
 

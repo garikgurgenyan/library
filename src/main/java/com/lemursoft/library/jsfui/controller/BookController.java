@@ -1,5 +1,11 @@
 package com.lemursoft.library.jsfui.controller;
 
+import com.lemursoft.library.dao.BookDao;
+import com.lemursoft.library.dao.GenreDao;
+import com.lemursoft.library.domain.Book;
+import com.lemursoft.library.jsfui.enums.SearchType;
+import com.lemursoft.library.jsfui.model.LazyDataTable;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
@@ -12,11 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
-import com.lemursoft.library.dao.BookDao;
-import com.lemursoft.library.dao.GenreDao;
-import com.lemursoft.library.domain.Book;
-import com.lemursoft.library.jsfui.enums.SearchType;
-import com.lemursoft.library.jsfui.model.LazyDataTable;
+
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
@@ -27,6 +29,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+
 
 
 @ManagedBean
@@ -96,12 +99,24 @@ public class BookController extends AbstractController<Book> {
     }
 
 
+    // загрузить картинку для обложки по-умолчанию
+    private byte[] loadDefaultIcon(){
+        InputStream stream = FacesContext.getCurrentInstance().getExternalContext().getResourceAsStream("/resources/images/no-cover.jpg");
+        try {
+            return IOUtils.toByteArray(stream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return null;
+
+    }
 
 
 
 
-
-    // метод автоматически вызывается из LazyDataTable
+    // автоматически вызывается из LazyDataTable
     @Override
     public Page<Book> search(int pageNumber, int pageSize, String sortField, Sort.Direction sortDirection) {
 
@@ -139,19 +154,6 @@ public class BookController extends AbstractController<Book> {
         uploadedContent = null;
 
         RequestContext.getCurrentInstance().execute("PF('dialogEditBook').show()");
-    }
-
-    // загрузить картинку по-умолчанию для обложки
-    private byte[] loadDefaultIcon(){
-        InputStream stream = FacesContext.getCurrentInstance().getExternalContext().getResourceAsStream("/resources/images/no-cover.jpg");
-        try {
-            return IOUtils.toByteArray(stream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-
     }
 
     // при закрытии диалогового окна - очищать загруженный контент из переменной
@@ -241,6 +243,16 @@ public class BookController extends AbstractController<Book> {
     }
 
 
+    public int calcAverageRating(long totalRating, long totalVoteCount) {
+        if (totalRating == 0 || totalVoteCount == 0) {
+            return 0;
+        }
+
+        int avgRating = Long.valueOf(totalRating / totalVoteCount).intValue();
+
+
+        return avgRating;
+    }
 
 
     public void showBooksByGenre(long genreId){
@@ -264,7 +276,6 @@ public class BookController extends AbstractController<Book> {
         bookDao.updateViewCount(viewCount+1, id);
     }
 
-
     // вызывается при голосовании за книгу
     public void onrate(RateEvent rateEvent) {
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
@@ -272,33 +283,16 @@ public class BookController extends AbstractController<Book> {
 
         Book book = bookPages.getContent().get(bookIndex);// по индексу получаем книгу, для которой проголосовали
 
-        // какой рейтинг поставил пользователь
         long currentRating = Long.valueOf(rateEvent.getRating().toString()).longValue();
 
-        // новый рейтинг (суммарный)
         long newRating = book.getTotalRating() + currentRating;
 
-        // сколько проголосовало
         long newVoteCount = book.getTotalVoteCount()+1;
 
-        // среднее значение, которое показывается на странице
         int newAvgRating = calcAverageRating(newRating, newVoteCount);
 
         bookDao.updateRating(newRating, newVoteCount, newAvgRating, book.getId());
 
     }
-
-
-    public int calcAverageRating(long totalRating, long totalVoteCount) {
-        if (totalRating == 0 || totalVoteCount == 0) {
-            return 0;
-        }
-
-        int avgRating = Long.valueOf(totalRating / totalVoteCount).intValue();
-
-
-        return avgRating;
-    }
-
 
 }
