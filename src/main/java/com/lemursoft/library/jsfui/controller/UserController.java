@@ -12,28 +12,26 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import java.util.ResourceBundle;
 
-
 @ManagedBean
 @ViewScoped
 @Component
 @Getter @Setter
-public class UserController {
-
+public class UserController  {
 
     private String username;
     private String password;
 
-
+    // для вывода данных о пользователе на страницу
     public User getCurrentUser(){
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
-    // есть ли роль у пользователя
+    // имеется ли роль у пользователя
     public boolean hasRole(String role){
         return getCurrentUser().getAuthorities().stream().filter(x -> x.getAuthority().equals("ROLE_"+role)).count()>0;
     }
 
-    // локализованное сообщение о том, что неправильно ввели логин или пароль
+    // сообщение пользователю, если аутентификация не прошла
     public String getLoginFailedMessage(){
 
         Object obj = FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("loginFailed");
