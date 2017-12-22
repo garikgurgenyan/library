@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-
+// дополнительный обработчик при неудачном входе в систему
 @Component
 public class AuthHandler implements AuthenticationFailureHandler {
 
@@ -23,6 +23,7 @@ public class AuthHandler implements AuthenticationFailureHandler {
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         HttpSession session = request.getSession(false);
         if (session != null) {
+            // добавить атрибут, чтобы отобразить ошибку на главной странице
             session.setAttribute("loginFailed", "login failed");
         }
 
